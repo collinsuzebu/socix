@@ -1,14 +1,21 @@
 import initialState from "./initialState";
-import { SET_USER } from "../actions/actionTypes";
+import { CLEAR_USER, SET_USER } from "../actions/actionTypes";
 
-const userReducer = (state = initialState.currentUser, action) => {
+const userReducer = (state = initialState, action) => {
   const { type } = action;
 
   switch (type) {
     case SET_USER:
       return {
+        ...state,
         currentUser: action.currentUser,
-        // isLoading: false,
+        isLoading: false,
+      };
+
+    case CLEAR_USER:
+      return {
+        ...state,
+        isLoading: false,
       };
 
     default:
