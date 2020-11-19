@@ -5,6 +5,7 @@ import firebase from "../../firebase";
 import { MessageForm } from "./MessageForm";
 import { MessageHeader } from "./MessageHeader";
 import { Message } from "./Message";
+import Typing from "./Typing";
 
 export function Messages() {
   const [messagesRef, setMessagesRef] = useState(
@@ -17,6 +18,7 @@ export function Messages() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [isChannelStarred, setIsChannelStarred] = useState(false);
+  const [typingUsers, setTypingUsers] = useState([]);
 
   const [privateMessagesRef, setPrivateMessagesRef] = useState(
     firebase.database().ref("private_messages")
@@ -24,6 +26,10 @@ export function Messages() {
 
   // Firebase Ref State
   const [usersRef, setUsersRef] = useState(firebase.database().ref("users"));
+  const [typingRef, setTypingRef] = useState(firebase.database().ref("typing"));
+  const [connectedRef, setCref] = useState(
+    firebase.database().ref(".info/connected")
+  );
 
   // Selectors
   const channel = useSelector((state) => state.channel.currentChannel);
@@ -41,6 +47,41 @@ export function Messages() {
 
   const addListeners = (channelId) => {
     addMessageListener(channelId);
+    addTypingListeners(channelId);
+  };
+
+  const addTypingListeners = (channelId) => {
+    let typingUsers = [];
+
+    typingRef.child(channelId).on("child_added", (snap) => {
+      if (snap.key !== user.uid) {
+        typingUsers = typingUsers.concat({ id: snap.key, name: snap.val() });
+      }
+      setTypingUsers(typingUsers);
+    });
+
+    typingRef.child(channelId).on("child_removed", (snap) => {
+      const index = typingUsers.findIndex((user) => user.id === snap.key);
+
+      if (index !== -1) {
+        typingUsers = typingUsers.filter((user) => user.id !== snap.key);
+        setTypingUsers(typingUsers);
+      }
+    });
+
+    connectedRef.on("value", (snap) => {
+      if (snap.val() === true) {
+        typingRef
+          .child(channelId)
+          .child(user.uid)
+          .onDisconnect()
+          .remove((err) => {
+            if (err !== null) {
+              console.log(err);
+            }
+          });
+      }
+    });
   };
 
   const addStarredListener = (channelId, userId) => {
@@ -157,6 +198,18 @@ export function Messages() {
     }
   }, [isChannelStarred]);
 
+  const displayTypingUsers = (users) =>
+    users.length > 0 &&
+    users.map((user) => (
+      <div
+        key={user.id}
+        style={{ display: "flex", alignItems: "center", marginBottom: "0.2em" }}
+      >
+        <span className="user__typing">{user.name} is typing</span>
+        <Typing />
+      </div>
+    ));
+
   return (
     <>
       <MessageHeader
@@ -173,6 +226,8 @@ export function Messages() {
           {searchTerm
             ? displayMessages(searchResults)
             : displayMessages(messages)}
+
+          {displayTypingUsers(typingUsers)}
         </Comment.Group>
       </Segment>
 

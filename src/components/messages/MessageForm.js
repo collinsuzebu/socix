@@ -20,6 +20,7 @@ export function MessageForm({
   const [error, setError] = useState("");
 
   const [storageRef, _] = useState(firebase.storage().ref());
+  const [typingRef, setTypingRef] = useState(firebase.database().ref("typing"));
 
   const handleChange = (e) => {
     setMessage(e.target.value);
@@ -27,6 +28,14 @@ export function MessageForm({
 
   const openModal = () => setModal(true);
   const closeModal = () => setModal(false);
+
+  const handleKeyDown = () => {
+    if (message) {
+      typingRef.child(channel.id).child(user.uid).set(user.displayName);
+    } else {
+      typingRef.child(channel.id).child(user.uid).remove();
+    }
+  };
 
   const createMessage = (fileUrl = null) => {
     const _message = {
@@ -57,6 +66,7 @@ export function MessageForm({
         .then(() => {
           setLoading(false);
           setMessage("");
+          typingRef.child(channel.id).child(user.uid).remove();
         })
         .catch((err) => {
           console.error(err);
@@ -112,9 +122,6 @@ export function MessageForm({
         });
       });
     }
-    // return () => {
-    //   cleanup;
-    // };
   }, [uploadTask]);
 
   const sendFilemessage = (fileUrl, ref, pathToUpload) => {
@@ -141,6 +148,7 @@ export function MessageForm({
         value={message}
         style={{ marginBottom: "0.7em" }}
         onChange={handleChange}
+        onKeyDown={handleKeyDown}
         className={error ? "error" : ""}
       />
 
