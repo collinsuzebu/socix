@@ -16,10 +16,16 @@ export function Messages() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [isChannelStarred, setIsChannelStarred] = useState(false);
+
   const [privateMessagesRef, setPrivateMessagesRef] = useState(
     firebase.database().ref("private_messages")
   );
 
+  // Firebase Ref State
+  const [usersRef, setUsersRef] = useState(firebase.database().ref("users"));
+
+  // Selectors
   const channel = useSelector((state) => state.channel.currentChannel);
   const user = useSelector((state) => state.user.currentUser);
   const isPrivateChannel = useSelector(
@@ -29,11 +35,26 @@ export function Messages() {
   useEffect(() => {
     if (channel && user) {
       addListeners(channel.id);
+      addStarredListener(channel.id, user.uid);
     }
   }, [channel, user]);
 
   const addListeners = (channelId) => {
     addMessageListener(channelId);
+  };
+
+  const addStarredListener = (channelId, userId) => {
+    usersRef
+      .child(userId)
+      .child("starred")
+      .once("value")
+      .then((data) => {
+        if (data.val() !== null) {
+          const channelIds = Object.keys(data.val());
+          const prevStarred = channelIds.includes(channelId);
+          setIsChannelStarred(prevStarred);
+        }
+      });
   };
 
   const addMessageListener = (channelId) => {
@@ -104,12 +125,46 @@ export function Messages() {
     }
   }, [searchTerm]);
 
+  // Starring a channel
+  const handleStar = () => {
+    setIsChannelStarred(!isChannelStarred);
+  };
+
+  // Effect callback when handleStar is called
+  useEffect(() => {
+    if (channel) {
+      if (isChannelStarred) {
+        usersRef.child(`${user.uid}/starred`).update({
+          [channel.id]: {
+            name: channel.name,
+            details: channel.details,
+            createdBy: {
+              name: channel.createdBy.name,
+              avatar: channel.createdBy.avatar,
+            },
+          },
+        });
+      } else {
+        usersRef
+          .child(`${user.uid}/starred`)
+          .child(channel.id)
+          .remove((err) => {
+            if (err !== null) {
+              console.error(err);
+            }
+          });
+      }
+    }
+  }, [isChannelStarred]);
+
   return (
     <>
       <MessageHeader
         channelName={displayChannelName(channel)}
         numUsers={numUsers}
         searchLoading={searchLoading}
+        handleStar={handleStar}
+        isChannelStarred={isChannelStarred}
         isPrivateChannel={isPrivateChannel}
         handleSearchChange={handleSearchChange}
       />
