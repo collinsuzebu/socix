@@ -23,7 +23,7 @@ export function DirectMessages() {
     if (user) {
       addListeners(user.uid);
     }
-  }, []);
+  }, [user]);
 
   const addListeners = (currentUserUid) => {
     let loadedUsers = [];
