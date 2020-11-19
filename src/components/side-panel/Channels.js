@@ -30,6 +30,7 @@ export function Channels() {
   const [messagesRef, setMessagesRef] = useState(
     firebase.database().ref("messages")
   );
+  const [typingRef, setTypingRef] = useState(firebase.database().ref("typing"));
 
   const { register, handleSubmit, reset } = useForm();
 
@@ -171,6 +172,7 @@ export function Channels() {
 
   const changeChannel = (channel) => {
     setActiveChannelIndicator(channel);
+    typingRef.child(channel.id).child(user.uid).remove();
     clearNotifications();
     dispatch(setCurrentChannel(channel));
     dispatch(setPrivateChannel(false));
