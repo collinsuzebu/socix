@@ -72,8 +72,6 @@ export default function Register() {
           setFirebaseError("");
           setLoading(false);
           // reset();
-
-          console.log(createdUser);
         })
         .catch((err) => {
           setLoading(false);
