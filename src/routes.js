@@ -19,8 +19,8 @@ const BaseRouter = () => {
         dispatch(setUser(user));
         history.push("/");
       } else {
-        dispatch(clearUser());
         history.push("/login");
+        dispatch(clearUser());
       }
     });
   }, []);
