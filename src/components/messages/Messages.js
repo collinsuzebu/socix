@@ -6,6 +6,7 @@ import { MessageForm } from "./MessageForm";
 import { MessageHeader } from "./MessageHeader";
 import { Message } from "./Message";
 import Typing from "./Typing";
+import { MessageSkeleton } from "./MessageSkeleton";
 
 export function Messages() {
   const [messagesRef, setMessagesRef] = useState(
@@ -37,6 +38,18 @@ export function Messages() {
   const isPrivateChannel = useSelector(
     (state) => state.channel.isPrivateChannel
   );
+
+  // Refs
+
+  var MessagesScrollRef;
+  const setScrollToMessageRef = (scroll) => {
+    if (scroll) {
+      MessagesScrollRef = scroll;
+      MessagesScrollRef.scrollIntoView({ behaviour: "smooth" });
+    }
+  };
+
+  useEffect(() => {}, [MessagesScrollRef]);
 
   useEffect(() => {
     if (channel && user) {
@@ -138,6 +151,15 @@ export function Messages() {
       <Message key={message.timestamp} message={message} user={user} />
     ));
 
+  const displayMessageSkeleton = (loading) =>
+    loading ? (
+      <React.Fragment>
+        {[...Array(10)].map((_, i) => (
+          <MessageSkeleton key={i} />
+        ))}
+      </React.Fragment>
+    ) : null;
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setSearchLoading(true);
@@ -223,11 +245,13 @@ export function Messages() {
       />
       <Segment>
         <Comment.Group className="messages">
+          {displayMessageSkeleton(loading)}
           {searchTerm
             ? displayMessages(searchResults)
             : displayMessages(messages)}
 
           {displayTypingUsers(typingUsers)}
+          <div ref={(ref) => setScrollToMessageRef(ref)}></div>
         </Comment.Group>
       </Segment>
 
