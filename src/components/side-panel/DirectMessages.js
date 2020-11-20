@@ -23,6 +23,12 @@ export function DirectMessages() {
     if (user) {
       addListeners(user.uid);
     }
+
+    return () => {
+      usersRef.off();
+      onlineRef.off();
+      connectedRef.off();
+    };
   }, [user]);
 
   const addListeners = (currentUserUid) => {

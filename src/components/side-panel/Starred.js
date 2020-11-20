@@ -23,6 +23,8 @@ export function Starred() {
     if (user) {
       addListeners(user.uid);
     }
+
+    return usersRef.child(`${user.uid}/starred`).off();
   }, []);
 
   const addListeners = (userId) => {

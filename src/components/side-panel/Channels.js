@@ -52,11 +52,15 @@ export function Channels() {
       }, 800);
 
       addNotificationListener(snap.key);
-
-      return () => channelsRef.off();
     });
 
-    return () => channelsRef.off(); //clean up
+    return () => {
+      //clean up
+      channelsRef.off();
+      channels.forEach((channel) => {
+        messagesRef.child(channel.id).off();
+      });
+    };
   }, []);
 
   // Notification

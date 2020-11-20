@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Button, Input, Segment } from "semantic-ui-react";
 import firebase from "../../firebase";
 import { FileModal } from "./FileModal";
+import { Picker, emojiIndex } from "emoji-mart";
+import "emoji-mart/css/emoji-mart.css";
 
 export function MessageForm({
   messagesRef,
@@ -14,6 +16,7 @@ export function MessageForm({
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
+  const [emojiPicker, setEmojiPicker] = useState(false);
   const [uploadState, setUploadState] = useState("");
   const [uploadTask, setUploadTask] = useState(null);
   const [percentUploaded, setPercentUploaded] = useState(null);
@@ -29,12 +32,48 @@ export function MessageForm({
   const openModal = () => setModal(true);
   const closeModal = () => setModal(false);
 
-  const handleKeyDown = () => {
+  var emojiRef;
+  const setEmojiRef = (emoji) => {
+    if (emoji) {
+      emojiRef = emoji;
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.ctrlKey && e.keyCode === 13) {
+      sendMessage();
+    }
     if (message) {
       typingRef.child(channel.id).child(user.uid).set(user.displayName);
     } else {
       typingRef.child(channel.id).child(user.uid).remove();
     }
+  };
+
+  const handleTogglePicker = () => {
+    setEmojiPicker(!emojiPicker);
+  };
+
+  const handleAddEmoji = (emoji) => {
+    const newMessage = colonToUnicode(`${message} ${emoji.colons}`);
+    setMessage(newMessage);
+    setEmojiPicker(false);
+    setTimeout(() => emojiRef.focus(), 0);
+  };
+
+  const colonToUnicode = (message) => {
+    return message.replace(/:[A-Za-z0-9_+-]+:/g, (x) => {
+      x = x.replace(/:/g, "");
+      let emoji = emojiIndex.emojis[x];
+      if (typeof emoji !== "undefined") {
+        let unicode = emoji.native;
+        if (typeof unicode !== "undefined") {
+          return unicode;
+        }
+      }
+      x = ":" + x + ":";
+      return x;
+    });
   };
 
   const createMessage = (fileUrl = null) => {
@@ -122,6 +161,13 @@ export function MessageForm({
         });
       });
     }
+
+    return () => {
+      if (uploadTask !== null) {
+        uploadTask.cancel();
+        setUploadTask(null);
+      }
+    };
   }, [uploadTask]);
 
   const sendFilemessage = (fileUrl, ref, pathToUpload) => {
@@ -139,12 +185,27 @@ export function MessageForm({
   };
   return (
     <Segment className="message__form">
+      {emojiPicker && (
+        <Picker
+          set="apple"
+          className="emojipicker"
+          title="Select an emoji"
+          emoji="point_up"
+          onSelect={handleAddEmoji}
+        />
+      )}
       <Input
         fluid
         name="message"
+        ref={(ref) => setEmojiRef(ref)}
         placeholder="Write a message"
         labelPosition="left"
-        label={<Button icon="add" />}
+        label={
+          <Button
+            icon={emojiPicker ? "close" : "add"}
+            onClick={handleTogglePicker}
+          />
+        }
         value={message}
         style={{ marginBottom: "0.7em" }}
         onChange={handleChange}

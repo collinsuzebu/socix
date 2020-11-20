@@ -36,6 +36,7 @@ export function ColorPanel() {
     if (user) {
       addListener(user.uid);
     }
+    return () => usersRef.child(`${user.uid}/colors`).off();
   }, []);
 
   const addListener = (userId) => {
