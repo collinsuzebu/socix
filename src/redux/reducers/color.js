@@ -6,6 +6,7 @@ const colorReducer = (state = initialState.color, action) => {
   switch (type) {
     case SET_COLORS:
       return {
+        ...state,
         primary: action.color.primary,
         secondary: action.color.secondary,
       };

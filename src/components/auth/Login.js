@@ -42,7 +42,6 @@ export default function Login() {
         .signInWithEmailAndPassword(email, password)
         .then((signedInUser) => {
           setLoading(false);
-          console.log(signedInUser);
         })
         .catch((err) => {
           setFirebaseError(err.message);
@@ -57,10 +56,10 @@ export default function Login() {
   };
 
   return (
-    <Grid textAlign="center" verticalAlign="middle" className="app">
+    <Grid textAlign="center" verticalAlign="middle" className="auth__page">
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h2" icon color="teal" textAlign="center">
-          <Icon name="sitemap" color="black" />
+          <Icon name="ravelry" color="teal" />
           Login to your Socix Account
         </Header>
 

@@ -7,3 +7,6 @@ export const SET_PRIVATE_CHANNEL = "SET_PRIVATE_CHANNEL";
 
 /* Colors */
 export const SET_COLORS = "SET_COLORS";
+
+/* Search */
+export const SET_SEARCH_RESULTS = "SET_SEARCH_RESULTS";

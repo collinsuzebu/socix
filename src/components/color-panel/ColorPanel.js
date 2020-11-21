@@ -22,6 +22,8 @@ export function ColorPanel() {
   const [usersRef, setUsersRef] = useState(firebase.database().ref("users"));
 
   const user = useSelector((state) => state.user.currentUser);
+  const defaultColor = useSelector((state) => state.color.default);
+
   const dispatch = useDispatch();
 
   const openModal = () => setModal(true);
@@ -43,8 +45,15 @@ export function ColorPanel() {
     let userColors = [];
     usersRef.child(`${userId}/colors`).on("child_added", (snap) => {
       userColors.unshift(snap.val());
-      setUserColors(userColors);
+      setTimeout(() => {
+        setUserColors(userColors);
+      }, 300);
     });
+  };
+
+  const defaultColors = () => {
+    dispatch(setColors(defaultColor.primary, defaultColor.secondary));
+    closeModal();
   };
 
   const saveColors = () => {
@@ -92,6 +101,7 @@ export function ColorPanel() {
       width="very thin"
       as={Menu}
       icon="labeled"
+      className="color__bartop"
     >
       <Divider />
       <Button icon="add" size="small" color="grey" onClick={openModal} />
@@ -115,6 +125,10 @@ export function ColorPanel() {
         </Modal.Content>
 
         <Modal.Actions>
+          <Button floated="left" color="black" onClick={defaultColors}>
+            <Icon name="dashboard" />
+            Use Default
+          </Button>
           <Button inverted color="green" onClick={saveColors}>
             <Icon name="checkmark" />
             Save

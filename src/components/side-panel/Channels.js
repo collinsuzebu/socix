@@ -24,6 +24,7 @@ export function Channels() {
   const [activeChannel, setActiveChannel] = useState({});
   const [notifications, setNotifications] = useState([]);
 
+  // Firebase Refs in State
   const [channelsRef, setChannelsRef] = useState(
     firebase.database().ref("channels")
   );
@@ -32,12 +33,17 @@ export function Channels() {
   );
   const [typingRef, setTypingRef] = useState(firebase.database().ref("typing"));
 
+  // UseForm - for form input control
   const { register, handleSubmit, reset } = useForm();
 
+  // Dispatch
   const dispatch = useDispatch();
 
+  // Selectors
+  const searchResults = useSelector((state) => state.searched);
   const user = useSelector((state) => state.user.currentUser);
 
+  // Open and Close Modal
   const openModal = () => setModal(true);
   const closeModal = () => setModal(false);
 
@@ -218,7 +224,7 @@ export function Channels() {
           <span>
             <Icon name="exchange" /> Channels
           </span>
-          <Icon name="add" onClick={openModal} />
+          <Icon name="add" onClick={openModal} className="cursor" />
         </Menu.Item>
 
         {displayChannels(channels)}
@@ -236,11 +242,11 @@ export function Channels() {
               />
             </Form.Field>
             <Form.Field>
-              <input
+              <textarea
                 placeholder="About the Channel"
                 name="channelDetails"
                 ref={register()}
-              />
+              ></textarea>
             </Form.Field>
           </Form>
         </Modal.Content>

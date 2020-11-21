@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Accordion, Image, Header, Icon, Segment } from "semantic-ui-react";
+import {
+  Accordion,
+  Image,
+  Header,
+  Icon,
+  Segment,
+  Grid,
+  Divider,
+} from "semantic-ui-react";
 
 export function MetaPanel() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -21,8 +29,42 @@ export function MetaPanel() {
   return (
     <Segment loading={!channel}>
       <Header as="h3" attached="top">
-        About #{channel && channel.name}
+        Details <Header.Subheader>#{channel && channel.name}</Header.Subheader>
       </Header>
+      <Divider horizontal />
+      <Grid>
+        <Grid.Row centered columns={4}>
+          <Grid.Column>
+            <Icon
+              name="user circle"
+              size="big"
+              color="grey"
+              style={{ marginBottom: "6px" }}
+            />
+            <span>Add</span>
+          </Grid.Column>
+          <Grid.Column>
+            <Icon
+              name="search"
+              size="big"
+              color="grey"
+              style={{ marginBottom: "6px" }}
+            />
+            <span>Find</span>
+          </Grid.Column>
+          <Grid.Column>
+            <Icon
+              name="phone"
+              size="big"
+              color="grey"
+              style={{ marginBottom: "6px" }}
+            />
+            <span> Call</span>
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
+      <Divider horizontal />
+
       <Accordion styled attached="true">
         <Accordion.Title
           active={activeIndex === 0}
@@ -34,7 +76,7 @@ export function MetaPanel() {
           Channel about
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-          details
+          {channel && channel.details}
         </Accordion.Content>
 
         <Accordion.Title
@@ -47,7 +89,7 @@ export function MetaPanel() {
           Pinned posts
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
-          details
+          No pinned post available
         </Accordion.Content>
 
         <Accordion.Title

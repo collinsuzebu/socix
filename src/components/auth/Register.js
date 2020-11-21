@@ -95,10 +95,10 @@ export default function Register() {
   };
 
   return (
-    <Grid textAlign="center" verticalAlign="middle" className="app">
+    <Grid textAlign="center" verticalAlign="middle" className="auth__page">
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h2" icon color="teal" textAlign="center">
-          <Icon name="triangle up" color="teal" />
+          <Icon name="ravelry" color="teal" />
           Register for Socix
         </Header>
 

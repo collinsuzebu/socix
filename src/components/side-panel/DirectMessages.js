@@ -17,6 +17,7 @@ export function DirectMessages() {
   );
 
   const user = useSelector((state) => state.user.currentUser);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export function DirectMessages() {
       loadedUsers.push(user);
       setTimeout(() => {
         setUsers(loadedUsers);
-      }, 500);
+      }, 1200);
     });
 
     connectedRef.on("value", (snap) => {
@@ -105,7 +106,7 @@ export function DirectMessages() {
       <Menu.Item>
         <span>
           <Icon name="mail" /> Direct messages
-        </span>
+        </span>{" "}
         ({users.length})
       </Menu.Item>
 

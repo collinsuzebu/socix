@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
+  Divider,
   Dropdown,
   Grid,
   Header,
@@ -9,6 +10,7 @@ import {
   Image,
   Input,
   Modal,
+  Segment,
 } from "semantic-ui-react";
 import AvatarEditor from "react-avatar-editor";
 import firebase from "../../firebase";
@@ -18,6 +20,7 @@ export default function UserPanel({ color }) {
   const [modal, setModal] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [blob, setBlob] = useState(null);
   const [metadata, setMetadata] = useState({ contentType: "image/jpeg" });
   const [storageRef, setStorageRef] = useState(firebase.storage().ref());
@@ -68,6 +71,7 @@ export default function UserPanel({ color }) {
   };
 
   const uploadCroppedImage = () => {
+    setLoading(true);
     storageRef
       .child(`avatars/user-${userRef.uid}`)
       .put(blob, metadata)
@@ -81,13 +85,14 @@ export default function UserPanel({ color }) {
   // Effect when crop image has successfully been set in state
   useEffect(() => {
     if (uploadedCroppedImage) {
+      setLoading(false);
       userRef
         .updateProfile({
           photoURL: uploadedCroppedImage,
         })
         .then(() => {
-          console.log("PhotoURL updated");
           closeModal();
+          console.log("PhotoURL updated");
         })
         .catch((err) => {
           console.log(err);
@@ -129,12 +134,16 @@ export default function UserPanel({ color }) {
   return (
     <Grid style={{ background: color.primary }}>
       <Grid.Column>
-        <Grid.Row style={{ padding: "1.2em", margin: 0 }}>
+        <Grid.Row className="user__panel">
           <Header inverted floated="left" as="h2">
-            <Icon name="code" />
+            <Icon name="ravelry" />
             <Header.Content>Socix</Header.Content>
           </Header>
         </Grid.Row>
+        <div
+          className="line"
+          style={{ borderBottom: `2.3px solid ${color.primary}` }}
+        ></div>
 
         <Header inverted as="h4" style={{ padding: "1.25em" }}>
           <Dropdown
@@ -147,45 +156,66 @@ export default function UserPanel({ color }) {
             options={dropdownOptions()}
           />
         </Header>
-        <Modal basic open={modal} onClose={closeModal}>
-          <Modal.Header>Change Profile Image</Modal.Header>
-          <Modal.Content>
-            <Input
-              fluid
-              type="file"
-              name="previewImage"
-              onChange={handleFileChange}
-            />
-            <Grid centered stackable columns={2}>
-              <Grid.Row centered>
-                <Grid.Column className="ui center aligned grid">
-                  {previewImage && (
-                    <AvatarEditor
-                      ref={(node) => setEditorRef(node)}
-                      image={previewImage}
-                      width={120}
-                      height={120}
-                      border={50}
-                      scale={1.2}
-                    />
-                  )}
-                </Grid.Column>
-                <Grid.Column>
-                  {croppedImage && (
-                    <Image
-                      style={{ margin: "3.5em auto" }}
-                      width={100}
-                      height={100}
-                      src={croppedImage}
-                    />
-                  )}
-                </Grid.Column>
-              </Grid.Row>
-            </Grid>
+        <Modal standard open={modal} onClose={closeModal}>
+          <Modal.Header>Select a Photo</Modal.Header>
+
+          <Modal.Content image>
+            {!previewImage && (
+              <Image
+                size="medium"
+                src="https://react.semantic-ui.com/images/avatar/large/rachel.png"
+                wrapped
+              />
+            )}
+
+            {previewImage && (
+              <AvatarEditor
+                ref={(node) => setEditorRef(node)}
+                image={previewImage}
+                border={50}
+                scale={1.2}
+              />
+            )}
+
+            {
+              <Icon
+                color="green"
+                size="huge"
+                name="arrow alternate circle right outline"
+                style={{
+                  paddingLeft: 50,
+                  paddingTop: 120,
+                }}
+              />
+            }
+
+            {croppedImage && (
+              <Image
+                style={{ marginLeft: "15em" }}
+                width={280}
+                height={280}
+                src={croppedImage}
+              />
+            )}
           </Modal.Content>
           <Modal.Actions>
+            <Button>
+              <Input
+                transparent
+                floated="left"
+                type="file"
+                name="previewImage"
+                onChange={handleFileChange}
+              />
+            </Button>
             {croppedImage && (
-              <Button color="green" inverted onClick={uploadCroppedImage}>
+              <Button
+                color="green"
+                inverted
+                onClick={uploadCroppedImage}
+                disabled={loading}
+                loading={loading}
+              >
                 <Icon name="save" /> Change Profile
               </Button>
             )}

@@ -17,6 +17,7 @@ export function Starred() {
   //   Selectors
   const user = useSelector((state) => state.user.currentUser);
 
+  // Dispatch
   const dispatch = useDispatch();
 
   useEffect(() => {

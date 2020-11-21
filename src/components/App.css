@@ -1,31 +1,61 @@
 html,
 body,
 .app {
+  height: 100%;
+  background-color: #f7f7f7;
+  padding-top: 2.6em;
+}
+
+.auth__page {
   height: 100vh;
   background-color: #f7f7f7;
   padding: 1em;
 }
 
+.cursor {
+  cursor: pointer;
+}
+
+/* Sematic */
+.white__box .ui.grid > .column:not(.row),
+.ui.grid > .row > .column {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* Messages.js */
 .messages {
-  height: 440px;
+  height: 550px;
   overflow-y: scroll;
+}
+
+.message__display:hover {
+  background: rgba(143, 137, 132, 0.1);
+  width: 55em;
+  border-radius: 5px;
+}
+
+.user__typing__container {
+  display: "flex";
+  align-items: "center";
+  margin-bottom: 0.2em;
 }
 
 /* MessageForm.js */
 .message__form {
   position: fixed !important;
-  bottom: 1em;
+  bottom: 0em;
   left: 0;
   right: 1em;
-  margin-left: 320px !important;
+  width: 87em;
+  margin-left: 312px !important;
   z-index: 200;
 }
 
 /* Message.js */
 .message__self {
-  border-left: 2px solid burlywood;
-  padding-left: 8px;
+  /* border-left: 2px solid burlywood; */
+  /* padding-left: 8px; */
 }
 
 .message__image {
@@ -36,6 +66,12 @@ body,
 
 .menu {
   padding-bottom: 2em;
+}
+
+/* UserPanel.js */
+.user__panel {
+  padding: 1.2em !important;
+  padding-top: 3.6em !important;
 }
 
 /* ColorPanel.js */
@@ -57,6 +93,10 @@ body,
   width: 85px;
   height: 35px;
   transform: rotate(225deg);
+}
+
+.color__bartop {
+  padding-top: 1em !important;
 }
 
 /* Typing.js */
@@ -111,6 +151,17 @@ body,
 /* MessageForm */
 .emojipicker {
   position: absolute;
+}
+
+.form__panel {
+  background: green;
+  width: 908px;
+  height: 35px;
+  border: 2px red solid;
+  float: right;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
 }
 
 /* MessageSkeleton.js */
@@ -176,4 +227,28 @@ body,
   left: 48px;
   right: 28px;
   background-color: rgba(58, 57, 57, 0.3);
+}
+
+/* HomePage.js */
+.top__menu {
+  /* background: #0d7e83; */
+  box-shadow: 0 8px 6px -6px rgba(68, 68, 68, 0.6);
+  filter: brightness(70%);
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 1em;
+  height: 3em;
+  width: 100%;
+  z-index: 200;
+  color: white;
+  text-align: center;
+  justify-content: center;
+  padding-top: 10px;
+  letter-spacing: 1.6px;
+}
+
+.line {
+  padding-top: 1.9em;
+  filter: brightness(90%);
 }
