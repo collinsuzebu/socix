@@ -24,7 +24,9 @@ export function MessageHeader({
             />
           )}
         </span>
-        <Header.Subheader>{numUsers}</Header.Subheader>
+        <Header.Subheader>
+          {isPrivateChannel ? "Send a private message" : numUsers}
+        </Header.Subheader>
       </Header>
 
       {/* Channel Search Field */}
@@ -33,7 +35,7 @@ export function MessageHeader({
           size="mini"
           icon="search"
           name="searchMessages"
-          placeholder="Search messages"
+          placeholder="Search messages, users"
           loading={searchLoading}
           onChange={handleSearchChange}
         ></Input>

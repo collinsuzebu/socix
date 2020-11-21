@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Comment, Segment } from "semantic-ui-react";
 import firebase from "../../firebase";
 import { MessageForm } from "./MessageForm";
@@ -7,23 +7,18 @@ import { MessageHeader } from "./MessageHeader";
 import { Message } from "./Message";
 import Typing from "./Typing";
 import { MessageSkeleton } from "./MessageSkeleton";
+import { EmptyMessage } from "./EmptyMessage";
+import setSearchResult from "../../redux/actions/search";
 
 export function Messages() {
-  const [messagesRef, setMessagesRef] = useState(
-    firebase.database().ref("messages")
-  );
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const [numUsers, setNumUsers] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  // const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [isChannelStarred, setIsChannelStarred] = useState(false);
   const [typingUsers, setTypingUsers] = useState([]);
-
-  const [privateMessagesRef, setPrivateMessagesRef] = useState(
-    firebase.database().ref("private_messages")
-  );
 
   // Firebase Ref State
   const [usersRef, setUsersRef] = useState(firebase.database().ref("users"));
@@ -31,9 +26,20 @@ export function Messages() {
   const [connectedRef, setCref] = useState(
     firebase.database().ref(".info/connected")
   );
+  const [messagesRef, setMessagesRef] = useState(
+    firebase.database().ref("messages")
+  );
+  const [privateMessagesRef, setPrivateMessagesRef] = useState(
+    firebase.database().ref("private_messages")
+  );
+
+  // Dispatch
+
+  const dispatch = useDispatch();
 
   // Selectors
   const channel = useSelector((state) => state.channel.currentChannel);
+  const searchResults = useSelector((state) => state.searched);
   const user = useSelector((state) => state.user.currentUser);
   const isPrivateChannel = useSelector(
     (state) => state.channel.isPrivateChannel
@@ -49,14 +55,14 @@ export function Messages() {
     }
   };
 
-  useEffect(() => {}, [MessagesScrollRef]);
+  // useEffect(() => {}, [MessagesScrollRef]);
 
   useEffect(() => {
     if (channel && user) {
       addListeners(channel.id);
       addStarredListener(channel.id, user.uid);
     }
-  }, [channel, user]);
+  }, [channel]);
 
   const addListeners = (channelId) => {
     addMessageListener(channelId);
@@ -122,8 +128,14 @@ export function Messages() {
         setMessages(loadedMessages);
         getUsers(loadedMessages);
         setLoading(false);
-      }, 200);
+      }, 800);
     });
+
+    if (loadedMessages.length === 0) {
+      setMessages(loadedMessages);
+      getUsers(loadedMessages);
+      setLoading(false);
+    }
   };
 
   // Get messages reference
@@ -146,10 +158,18 @@ export function Messages() {
     channel ? `${isPrivateChannel ? "@" : "#"}${channel.name}` : "";
 
   const displayMessages = (messages) =>
-    messages.length > 0 &&
-    messages.map((message) => (
-      <Message key={message.timestamp} message={message} user={user} />
-    ));
+    messages.length > 0 ? (
+      messages.map((message) => (
+        <Message key={message.timestamp} message={message} user={user} />
+      ))
+    ) : (
+      <EmptyMessage
+        user={user}
+        loading={loading}
+        displayName={displayChannelName(channel)}
+        isPrivate={isPrivateChannel}
+      />
+    );
 
   const displayMessageSkeleton = (loading) =>
     loading ? (
@@ -181,10 +201,13 @@ export function Messages() {
 
         return acc;
       }, []);
-      setSearchResults(searchResults);
+      // setSearchResults(searchResults);
+      dispatch(setSearchResult(searchResults));
       setTimeout(() => {
         setSearchLoading(false);
-      }, 1000);
+      }, 600);
+    } else {
+      setSearchLoading(false);
     }
   }, [searchTerm]);
 
@@ -223,10 +246,7 @@ export function Messages() {
   const displayTypingUsers = (users) =>
     users.length > 0 &&
     users.map((user) => (
-      <div
-        key={user.id}
-        style={{ display: "flex", alignItems: "center", marginBottom: "0.2em" }}
-      >
+      <div key={user.id} className="user__typing__container">
         <span className="user__typing">{user.name} is typing</span>
         <Typing />
       </div>
@@ -234,26 +254,28 @@ export function Messages() {
 
   return (
     <>
-      <MessageHeader
-        channelName={displayChannelName(channel)}
-        numUsers={numUsers}
-        searchLoading={searchLoading}
-        handleStar={handleStar}
-        isChannelStarred={isChannelStarred}
-        isPrivateChannel={isPrivateChannel}
-        handleSearchChange={handleSearchChange}
-      />
-      <Segment>
-        <Comment.Group className="messages">
-          {displayMessageSkeleton(loading)}
-          {searchTerm
-            ? displayMessages(searchResults)
-            : displayMessages(messages)}
+      <Segment.Group>
+        <MessageHeader
+          channelName={displayChannelName(channel)}
+          numUsers={numUsers}
+          searchLoading={searchLoading}
+          handleStar={handleStar}
+          isChannelStarred={isChannelStarred}
+          isPrivateChannel={isPrivateChannel}
+          handleSearchChange={handleSearchChange}
+        />
+        <Segment className="messages">
+          <Comment.Group>
+            {displayMessageSkeleton(loading)}
+            {searchTerm
+              ? displayMessages(searchResults)
+              : displayMessages(messages)}
 
-          {displayTypingUsers(typingUsers)}
-          <div ref={(ref) => setScrollToMessageRef(ref)}></div>
-        </Comment.Group>
-      </Segment>
+            {displayTypingUsers(typingUsers)}
+            <div ref={(ref) => setScrollToMessageRef(ref)}></div>
+          </Comment.Group>
+        </Segment>
+      </Segment.Group>
 
       <MessageForm
         messagesRef={messagesRef}

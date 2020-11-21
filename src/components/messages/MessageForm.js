@@ -5,6 +5,7 @@ import firebase from "../../firebase";
 import { FileModal } from "./FileModal";
 import { Picker, emojiIndex } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
+import { useSelector } from "react-redux";
 
 export function MessageForm({
   messagesRef,
@@ -24,6 +25,9 @@ export function MessageForm({
 
   const [storageRef, _] = useState(firebase.storage().ref());
   const [typingRef, setTypingRef] = useState(firebase.database().ref("typing"));
+
+  // Selectors
+  const color = useSelector((state) => state.color);
 
   const handleChange = (e) => {
     setMessage(e.target.value);
@@ -213,7 +217,7 @@ export function MessageForm({
         className={error ? "error" : ""}
       />
 
-      <Button.Group icon widths="2">
+      <Button.Group icon widths="3">
         <Button
           color="vk"
           content="Reply"
@@ -236,6 +240,10 @@ export function MessageForm({
           uploadFile={uploadFile}
         />
       </Button.Group>
+      {/* <div
+        className="form__panel"
+        style={{ background: color.secondary }}
+      ></div> */}
     </Segment>
   );
 }
