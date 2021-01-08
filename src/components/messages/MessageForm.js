@@ -123,7 +123,7 @@ export function MessageForm({
 
   const getPath = () => {
     if (isPrivateChannel) {
-      return `chat/private-${channel.id}`;
+      return `chat/private/${channel.id}`;
     } else {
       return `chat/public`;
     }

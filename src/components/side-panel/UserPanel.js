@@ -73,7 +73,7 @@ export default function UserPanel({ color }) {
   const uploadCroppedImage = () => {
     setLoading(true);
     storageRef
-      .child(`avatars/user-${userRef.uid}`)
+      .child(`avatars/users/${userRef.uid}`)
       .put(blob, metadata)
       .then((snap) => {
         snap.ref.getDownloadURL().then((downloadUrl) => {
